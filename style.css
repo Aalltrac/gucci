@@ -8,24 +8,31 @@ html,
 body {
   height: 100%;
   overflow: hidden;
-  font-family: sans-serif;
-  background-color: #a8d5ba;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #F0F8FF;
 }
 
 canvas {
   display: block;
-  background-color: #cff5f7;
+  background-color: #E0F7FA;
+}
+
+#ui,
+#quest {
+  position: absolute;
+  left: 10px;
+  color: #555;
+  padding: 8px 12px;
+  border-radius: 8px;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+  font-size: 18px;
+  background: linear-gradient(135deg, #f8f1e4, #e0d8c3);
+  border: 1px solid #d2b48c;
 }
 
 #ui {
-  position: absolute;
   top: 10px;
-  left: 10px;
   font-size: 20px;
-  color: #333;
-  background-color: rgba(255, 255, 255, 0.7);
-  padding: 5px 10px;
-  border-radius: 5px;
   transition: opacity 0.5s;
 }
 
@@ -34,30 +41,26 @@ canvas {
 }
 
 #quest {
-  position: absolute;
   top: 60px;
-  left: 10px;
   font-size: 18px;
-  color: #333;
-  background-color: rgba(255, 255, 255, 0.6);
-  padding: 4px 8px;
-  border-radius: 5px;
 }
 
-#startSound {
+#startSound,
+#diaryButton {
   padding: 5px 10px;
   font-size: 16px;
   margin-left: 10px;
   border: none;
   border-radius: 5px;
-  background-color: #ffc107;
+  background: linear-gradient(45deg, #FFC1E3, #FFDEE9);
   color: #fff;
   cursor: pointer;
   transition: transform 0.2s;
   animation: pulse 2s infinite;
 }
 
-#startSound:hover {
+#startSound:hover,
+#diaryButton:hover {
   transform: scale(1.1);
 }
 
@@ -65,4 +68,14 @@ canvas {
   0% { transform: scale(1); }
   50% { transform: scale(1.05); }
   100% { transform: scale(1); }
+}
+
+#ui select {
+  margin-left: 10px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  padding: 2px 5px;
+  background: linear-gradient(45deg, #FFC1E3, #FFDEE9);
+  color: #fff;
 }

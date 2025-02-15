@@ -2,7 +2,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Gucci's Chill Adventure</title>
+    <title>Gucci</title>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
@@ -10,10 +10,48 @@
     <div id="ui">
       Score: <span id="score">0</span>
       &nbsp; Noisettes: <span id="nutsCount">0</span>
+      &nbsp; Trésors: <span id="treasureCount">0</span>
+      <br />
+      Couleur de Gucci:
+      <select id="furColorSelect">
+        <option value="#F5DEB3">Brun Clair</option>
+        <option value="#C0C0C0">Gris</option>
+        <option value="#FFF8DC">Blanc Crème</option>
+        <option value="#FFCC99">Roux Pâle</option>
+      </select>
+      &nbsp; Accessoire:
+      <select id="accessorySelect">
+        <option value="Aucun">Aucun</option>
+        <option value="Chapeau">Chapeau en feuille</option>
+        <option value="Ruban">Ruban</option>
+        <option value="Foulard">Foulard</option>
+        <option value="Fleur">Fleur</option>
+        <option value="Sac">Sac</option>
+      </select>
+      <br />
+      Motif de fourrure:
+      <select id="furPatternSelect">
+        <option value="Aucun">Aucun</option>
+        <option value="Taches">Taches</option>
+        <option value="Rayures">Rayures</option>
+      </select>
+      &nbsp; Longueur de la queue:
+      <select id="tailLengthSelect">
+        <option value="Standard">Standard</option>
+        <option value="Courte">Courte</option>
+        <option value="Longue">Longue</option>
+        <option value="Touffue">Touffue</option>
+      </select>
+      &nbsp; Forme des oreilles:
+      <select id="earShapeSelect">
+        <option value="Standard">Standard</option>
+        <option value="Rondes">Rondes</option>
+        <option value="Pointues">Pointues</option>
+        <option value="Tombantes">Tombantes</option>
+      </select>
+      <br />
       <button id="startSound">Activer le son</button>
-    </div>
-    <div id="quest">
-      Quête: Collectionne des objets, explore les biomes et repose-toi !
+      <button id="diaryButton">Journal de souris</button>
     </div>
     <script type="module" src="main.js"></script>
   </body>
