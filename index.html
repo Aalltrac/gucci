@@ -52,6 +52,111 @@
       <br />
       <button id="startSound">Activer le son</button>
       <button id="diaryButton">Journal de souris</button>
+      <button id="settingsButton" title="Paramètres">
+        <svg width="24" height="24" viewBox="0 0 24 24">
+          <path fill="#555" d="M12 8a4 4 0 1 1 0 8 4 4 0 0 1 0-8zm7.94 4a7.94 7.94 0 0 0-.1-1l2.11-1.65a.5.5 0 0 0 .12-.63l-2-3.46a.5.5 0 0 0-.6-.22l-2.49 1a7.77 7.77 0 0 0-1.73-1l-.38-2.65a.5.5 0 0 0-.5-.42h-4a.5.5 0 0 0-.5.42l-.38 2.65a7.77 7.77 0 0 0-1.73 1l-2.49-1a.5.5 0 0 0-.6.22l-2 3.46a.5.5 0 0 0 .12.63L4.16 11a7.94 7.94 0 0 0-.1 1 7.94 7.94 0 0 0 .1 1l-2.11 1.65a.5.5 0 0 0-.12.63l2 3.46a.5.5 0 0 0 .6.22l2.49-1a7.77 7.77 0 0 0 1.73 1l.38 2.65a.5.5 0 0 0 .5.42h4a.5.5 0 0 0 .5-.42l.38-2.65a7.77 7.77 0 0 0 1.73-1l2.49 1a.5.5 0 0 0 .6-.22l2-3.46a.5.5 0 0 0-.12-.63L19.94 13z"/>
+        </svg>
+      </button>
+    </div>
+    <div id="quest">
+      Peut-être devrais-tu explorer la forêt, goûter un délicieux fromage ou laisser tes moustaches frémir en flairant les odeurs...
+    </div>
+    
+    <div id="settingsPanel">
+      <h2>Paramètres des Touches</h2>
+      <table>
+        <tr>
+          <td>Mouvement Haut</td>
+          <td><input id="control-up" type="text" value="ArrowUp / w" /></td>
+        </tr>
+        <tr>
+          <td>Mouvement Bas</td>
+          <td><input id="control-down" type="text" value="ArrowDown / s" /></td>
+        </tr>
+        <tr>
+          <td>Mouvement Gauche</td>
+          <td><input id="control-left" type="text" value="ArrowLeft / a" /></td>
+        </tr>
+        <tr>
+          <td>Mouvement Droite</td>
+          <td><input id="control-right" type="text" value="ArrowRight / d" /></td>
+        </tr>
+        <tr>
+          <td>Interagir (boire/flairer)</td>
+          <td><input id="control-interact" type="text" value="e" /></td>
+        </tr>
+        <tr>
+          <td>Creuser</td>
+          <td><input id="control-dig" type="text" value="f" /></td>
+        </tr>
+        <tr>
+          <td>Sommeil Manuel</td>
+          <td><input id="control-sleep" type="text" value="r" /></td>
+        </tr>
+        <tr>
+          <td>Construire le Nid</td>
+          <td><input id="control-nest" type="text" value="n" /></td>
+        </tr>
+      </table>
+      <h2>Contrôles Mobiles</h2>
+      <label>
+        <input type="checkbox" id="mobileControlsVisible" checked />
+        Afficher les boutons tactiles
+      </label>
+      <br />
+      <label>
+        Taille des boutons :
+        <input type="range" id="mobileControlSize" min="30" max="100" value="50" />
+      </label>
+      <br />
+      <button id="closeSettings">Fermer</button>
+    </div>
+    
+    <div id="mobileControls">
+      <div id="mobileDpad">
+        <button class="dpad-btn" id="mobile-up" title="Haut">
+          <svg width="24" height="24" viewBox="0 0 24 24">
+            <path fill="#555" d="M12 8l-6 6h12z"/>
+          </svg>
+        </button>
+        <button class="dpad-btn" id="mobile-down" title="Bas">
+          <svg width="24" height="24" viewBox="0 0 24 24">
+            <path fill="#555" d="M12 16l6-6H6z"/>
+          </svg>
+        </button>
+        <button class="dpad-btn" id="mobile-left" title="Gauche">
+          <svg width="24" height="24" viewBox="0 0 24 24">
+            <path fill="#555" d="M8 12l6-6v12z"/>
+          </svg>
+        </button>
+        <button class="dpad-btn" id="mobile-right" title="Droite">
+          <svg width="24" height="24" viewBox="0 0 24 24">
+            <path fill="#555" d="M16 12l-6 6V6z"/>
+          </svg>
+        </button>
+      </div>
+      <div id="mobileActions">
+        <button class="mobile-btn" id="mobile-interact" title="Interagir">
+          <svg width="24" height="24" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="5" fill="#555"/>
+          </svg>
+        </button>
+        <button class="mobile-btn" id="mobile-dig" title="Creuser">
+          <svg width="24" height="24" viewBox="0 0 24 24">
+            <path fill="#555" d="M3 17l9 4 4-9-9-4z"/>
+          </svg>
+        </button>
+        <button class="mobile-btn" id="mobile-sleep" title="Dormir">
+          <svg width="24" height="24" viewBox="0 0 24 24">
+            <path fill="#555" d="M12 2a9.93 9.93 0 0 0-7 3.03A10 10 0 1 0 12 2z"/>
+          </svg>
+        </button>
+        <button class="mobile-btn" id="mobile-nest" title="Construire le Nid">
+          <svg width="24" height="24" viewBox="0 0 24 24">
+            <path fill="#555" d="M12 2l7 7-7 7-7-7z"/>
+          </svg>
+        </button>
+      </div>
     </div>
     <script type="module" src="main.js"></script>
   </body>

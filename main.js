@@ -48,25 +48,73 @@ const player = {
   isCurious: false,
   isSneezing: false,
   justRained: false,
-  wasRaining: false
+  wasRaining: false,
+  isInWater: false
 };
 
-const keys = {
-  ArrowUp: false,
-  ArrowDown: false,
-  ArrowLeft: false,
-  ArrowRight: false,
-  w: false,
-  a: false,
-  s: false,
-  d: false,
-  e: false,
-  f: false,
-  r: false,
-  n: false
+let controls = {
+  up: { primary: "ArrowUp", secondary: "w" },
+  down: { primary: "ArrowDown", secondary: "s" },
+  left: { primary: "ArrowLeft", secondary: "a" },
+  right: { primary: "ArrowRight", secondary: "d" },
+  interact: { primary: "e" },
+  dig: { primary: "f" },
+  sleep: { primary: "r" },
+  nest: { primary: "n" }
 };
-window.addEventListener("keydown", (e) => { if (e.key in keys) keys[e.key] = true; });
-window.addEventListener("keyup", (e) => { if (e.key in keys) keys[e.key] = false; });
+
+let controlsPressed = {
+  up: false,
+  down: false,
+  left: false,
+  right: false,
+  interact: false,
+  dig: false,
+  sleep: false,
+  nest: false
+};
+
+window.addEventListener("keydown", (e) => {
+  let key = e.key;
+  if(key === controls.up.primary || key === controls.up.secondary) {
+    controlsPressed.up = true;
+  } else if(key === controls.down.primary || key === controls.down.secondary) {
+    controlsPressed.down = true;
+  } else if(key === controls.left.primary || key === controls.left.secondary) {
+    controlsPressed.left = true;
+  } else if(key === controls.right.primary || key === controls.right.secondary) {
+    controlsPressed.right = true;
+  } else if(key === controls.interact.primary) {
+    controlsPressed.interact = true;
+  } else if(key === controls.dig.primary) {
+    controlsPressed.dig = true;
+  } else if(key === controls.sleep.primary) {
+    controlsPressed.sleep = true;
+  } else if(key === controls.nest.primary) {
+    controlsPressed.nest = true;
+  }
+});
+
+window.addEventListener("keyup", (e) => {
+  let key = e.key;
+  if(key === controls.up.primary || key === controls.up.secondary) {
+    controlsPressed.up = false;
+  } else if(key === controls.down.primary || key === controls.down.secondary) {
+    controlsPressed.down = false;
+  } else if(key === controls.left.primary || key === controls.left.secondary) {
+    controlsPressed.left = false;
+  } else if(key === controls.right.primary || key === controls.right.secondary) {
+    controlsPressed.right = false;
+  } else if(key === controls.interact.primary) {
+    controlsPressed.interact = false;
+  } else if(key === controls.dig.primary) {
+    controlsPressed.dig = false;
+  } else if(key === controls.sleep.primary) {
+    controlsPressed.sleep = false;
+  } else if(key === controls.nest.primary) {
+    controlsPressed.nest = false;
+  }
+});
 
 function regenerateStars() {
   stars = [];
@@ -1144,10 +1192,10 @@ function drawTunnel(tunnel) {
 
 function update() {
   let dx = 0, dy = 0;
-  if (keys.ArrowUp || keys.w) dy -= player.speed;
-  if (keys.ArrowDown || keys.s) dy += player.speed;
-  if (keys.ArrowLeft || keys.a) dx -= player.speed;
-  if (keys.ArrowRight || keys.d) dx += player.speed;
+  if (controlsPressed.up) dy -= player.speed;
+  if (controlsPressed.down) dy += player.speed;
+  if (controlsPressed.left) dx -= player.speed;
+  if (controlsPressed.right) dx += player.speed;
   if (dx && dy) { dx *= Math.SQRT1_2; dy *= Math.SQRT1_2; }
   player.x += dx;
   player.y += dy;
@@ -1265,7 +1313,7 @@ function update() {
   updateSleeping();
   updateButterfliesRepulsion();
   
-  if (keys.e) {
+  if (controlsPressed.interact) {
     if (player.isInWater && !player.isDrinking) {
       player.isDrinking = true;
       player.drinkEndTime = Date.now() + 1000;
@@ -1273,22 +1321,9 @@ function update() {
     } else {
       player.isSniffing = true;
     }
-    keys.e = false;
+    controlsPressed.interact = false;
   }
-  if (player.isDrinking && Date.now() > player.drinkEndTime) {
-    player.isDrinking = false;
-  }
-  
-  if (keys.r && !player.isMoving && !player.isSleeping) {
-    player.sleepingManual = true;
-    player.sleepEndTime = Date.now() + 3000;
-    keys.r = false;
-  }
-  if (player.sleepingManual && Date.now() > player.sleepEndTime) {
-    player.sleepingManual = false;
-  }
-  
-  if (keys.f && !player.isDigging) {
+  if (controlsPressed.dig && !player.isDigging) {
     for (let zone of digZones) {
       if (player.x > zone.x && player.x < zone.x + zone.width &&
           player.y > zone.y && player.y < zone.y + zone.height) {
@@ -1303,18 +1338,19 @@ function update() {
         break;
       }
     }
-    keys.f = false;
+    controlsPressed.dig = false;
   }
-  if (player.isDigging && Date.now() > player.digEndTime) {
-    player.isDigging = false;
+  if (controlsPressed.sleep && !player.isMoving && !player.isSleeping) {
+    player.sleepingManual = true;
+    player.sleepEndTime = Date.now() + 3000;
+    controlsPressed.sleep = false;
   }
-  
-  if (keys.n && !player.nestBuilt && player.treasureCount >= 5) {
+  if (controlsPressed.nest && !player.nestBuilt && player.treasureCount >= 5) {
     player.nestBuilt = true;
     player.treasureCount -= 5;
     document.getElementById("treasureCount").textContent = player.treasureCount;
     synth.triggerAttackRelease("C4", "8n");
-    keys.n = false;
+    controlsPressed.nest = false;
   }
   
   for (let i = treasures.length - 1; i >= 0; i--) {
@@ -1433,6 +1469,10 @@ document.getElementById("startSound").addEventListener("click", async () => {
   document.getElementById("startSound").style.display = "none";
 });
 
+document.getElementById("diaryButton").addEventListener("click", () => {
+  alert("Journal de souris : Fonctionnalité à venir !");
+});
+
 document.getElementById("furColorSelect").addEventListener("change", (e) => {
   player.furColor = e.target.value;
 });
@@ -1448,8 +1488,93 @@ document.getElementById("tailLengthSelect").addEventListener("change", (e) => {
 document.getElementById("earShapeSelect").addEventListener("change", (e) => {
   player.earShape = e.target.value;
 });
-document.getElementById("diaryButton").addEventListener("click", () => {
-  alert("Journal de souris : Fonctionnalité à venir !");
+
+function setupMobileControl(buttonId, action) {
+  const btn = document.getElementById(buttonId);
+  btn.addEventListener("pointerdown", () => { controlsPressed[action] = true; });
+  btn.addEventListener("pointerup", () => { controlsPressed[action] = false; });
+  btn.addEventListener("pointerout", () => { controlsPressed[action] = false; });
+}
+
+setupMobileControl("mobile-up", "up");
+setupMobileControl("mobile-down", "down");
+setupMobileControl("mobile-left", "left");
+setupMobileControl("mobile-right", "right");
+setupMobileControl("mobile-interact", "interact");
+setupMobileControl("mobile-dig", "dig");
+setupMobileControl("mobile-sleep", "sleep");
+setupMobileControl("mobile-nest", "nest");
+
+const mobileControls = document.getElementById("mobileControls");
+let isDragging = false;
+let dragOffset = { x: 0, y: 0 };
+mobileControls.addEventListener("pointerdown", (e) => {
+  if (e.target === mobileControls) {
+    isDragging = true;
+    dragOffset.x = e.clientX - mobileControls.offsetLeft;
+    dragOffset.y = e.clientY - mobileControls.offsetTop;
+    e.preventDefault();
+  }
+});
+window.addEventListener("pointermove", (e) => {
+  if (isDragging) {
+    mobileControls.style.left = (e.clientX - dragOffset.x) + "px";
+    mobileControls.style.top = (e.clientY - dragOffset.y) + "px";
+  }
+});
+window.addEventListener("pointerup", () => {
+  isDragging = false;
+});
+
+const settingsButton = document.getElementById("settingsButton");
+const settingsPanel = document.getElementById("settingsPanel");
+const closeSettings = document.getElementById("closeSettings");
+
+settingsButton.addEventListener("click", () => {
+  document.getElementById("control-up").value = controls.up.primary + " / " + controls.up.secondary;
+  document.getElementById("control-down").value = controls.down.primary + " / " + controls.down.secondary;
+  document.getElementById("control-left").value = controls.left.primary + " / " + controls.left.secondary;
+  document.getElementById("control-right").value = controls.right.primary + " / " + controls.right.secondary;
+  document.getElementById("control-interact").value = controls.interact.primary;
+  document.getElementById("control-dig").value = controls.dig.primary;
+  document.getElementById("control-sleep").value = controls.sleep.primary;
+  document.getElementById("control-nest").value = controls.nest.primary;
+  document.getElementById("mobileControlsVisible").checked = (mobileControls.style.display !== "none");
+  settingsPanel.style.display = "block";
+});
+
+closeSettings.addEventListener("click", () => {
+  const upInput = document.getElementById("control-up").value.split("/");
+  controls.up.primary = upInput[0].trim();
+  controls.up.secondary = upInput[1] ? upInput[1].trim() : "";
+  
+  const downInput = document.getElementById("control-down").value.split("/");
+  controls.down.primary = downInput[0].trim();
+  controls.down.secondary = downInput[1] ? downInput[1].trim() : "";
+  
+  const leftInput = document.getElementById("control-left").value.split("/");
+  controls.left.primary = leftInput[0].trim();
+  controls.left.secondary = leftInput[1] ? leftInput[1].trim() : "";
+  
+  const rightInput = document.getElementById("control-right").value.split("/");
+  controls.right.primary = rightInput[0].trim();
+  controls.right.secondary = rightInput[1] ? rightInput[1].trim() : "";
+  
+  controls.interact.primary = document.getElementById("control-interact").value.trim();
+  controls.dig.primary = document.getElementById("control-dig").value.trim();
+  controls.sleep.primary = document.getElementById("control-sleep").value.trim();
+  controls.nest.primary = document.getElementById("control-nest").value.trim();
+  
+  const mobileVisible = document.getElementById("mobileControlsVisible").checked;
+  mobileControls.style.display = mobileVisible ? "flex" : "none";
+  
+  const size = document.getElementById("mobileControlSize").value + "px";
+  document.querySelectorAll(".mobile-btn").forEach(btn => {
+    btn.style.width = size;
+    btn.style.height = size;
+  });
+  
+  settingsPanel.style.display = "none";
 });
 
 function gameLoop() {
