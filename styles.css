@@ -77,11 +77,9 @@ html,body{height:100%;margin:0;background:linear-gradient(180deg,#e9f7ee,#e3f1ff
   background:#fff;border-left:6px solid var(--leaf);padding:10px 12px;border-radius:10px;box-shadow:0 10px 24px var(--shadow)
 }
 
-/* Settings helpers */
 .setting-row{display:flex;align-items:center;gap:10px;margin:10px 0;flex-wrap:wrap}
 .switch{display:flex;align-items:center;gap:8px}
 
-/* Mobile controls */
 #mobile-controls{
   position:absolute;inset:0;pointer-events:none;
   --mc-scale: 1;
@@ -113,7 +111,6 @@ html,body{height:100%;margin:0;background:linear-gradient(180deg,#e9f7ee,#e3f1ff
 #mobile-controls.hidden{display:none}
 
 @media (pointer: fine){
-  /* keep enabled by default; user can disable in settings */
 }
 
 @media (max-width: 720px){
