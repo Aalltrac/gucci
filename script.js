@@ -76,7 +76,7 @@ const loadImage = (src) =>
 
 async function loadAssets() {
   const names = [
-    ["mouse","gucci_mouse_sprites.png"],
+    ["mouse","gucci_mouse_boy_sprites.png"],
     ["tiles","tileset_nature.png"],
     ["flower","flower_patch.png"],
     ["berries","berry_bush.png"],
