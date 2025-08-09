@@ -2,7 +2,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Gucci la Souris — Balade Relax</title>
+  <title>Gucci</title>
   <link rel="stylesheet" href="styles.css" />
   <link rel="preload" href="gucci_mouse_sprites.png" as="image" />
   <link rel="preload" href="tileset_nature.png" as="image" />
@@ -15,10 +15,8 @@
   <div id="game-root">
     <canvas id="game" width="960" height="540"></canvas>
 
-    <!-- Soft vignette and tint for day-night -->
     <div id="tint"></div>
 
-    <!-- Minimal HUD -->
     <div id="hud">
       <div class="hud-left">
         <div class="badge">
@@ -36,13 +34,11 @@
       </div>
     </div>
 
-    <!-- Interaction prompt -->
     <div id="prompt" hidden>
       <span id="prompt-text"></span>
       <span class="key">E</span>
     </div>
 
-    <!-- Journal -->
     <div id="journal" class="panel" hidden>
       <div class="panel-header">
         <h2>Journal de Gucci</h2>
@@ -55,7 +51,6 @@
       </div>
     </div>
 
-    <!-- Settings Panel -->
     <div id="settings" class="panel" hidden>
       <div class="panel-header">
         <h2>Paramètres</h2>
@@ -85,7 +80,6 @@
       </div>
     </div>
 
-    <!-- Mobile Controls -->
     <div id="mobile-controls">
       <div id="mc-joystick" class="draggable" data-drag="joystick" aria-label="Joystick">
         <div class="mc-joy-base"></div>
@@ -97,7 +91,6 @@
       </div>
     </div>
 
-    <!-- Toasts -->
     <div id="toasts"></div>
   </div>
 
