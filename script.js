@@ -1,17 +1,8 @@
-/*
-  Gucci la Souris — jeu chill 2D
-  - Déplacements: ZQSD / Flèches
-  - Interactions: E
-  - Journal: J
-*/
-
-// Canvas setup
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 const W = canvas.width;
 const H = canvas.height;
 
-// UI elements
 const zenBar = document.getElementById("zen-bar");
 const promptEl = document.getElementById("prompt");
 const promptTextEl = document.getElementById("prompt-text");
@@ -19,10 +10,8 @@ const journalEl = document.getElementById("journal");
 const questsEl = document.getElementById("quests");
 const toastsEl = document.getElementById("toasts");
 const tintEl = document.getElementById("tint");
-// FIX: missing reference to the Journal button
 const btnJournal = document.getElementById("btn-journal");
 
-/* Settings + Mobile Controls UI elements */
 const settingsEl = document.getElementById("settings");
 const btnSettings = document.getElementById("btn-settings");
 const mobileControlsEl = document.getElementById("mobile-controls");
@@ -36,14 +25,12 @@ const chkMCEdit = document.getElementById("toggle-edit-controls");
 const rangeMCSize = document.getElementById("controls-size");
 const btnResetControls = document.getElementById("btn-reset-controls");
 
-// State
 const keys = new Set();
 let lastTime = 0;
 const TILE = 64;
-const MAP_W = 80; // large map
+const MAP_W = 80;
 const MAP_H = 60;
 
-// Virtual joystick aggregated input (fix: define virtualInput)
 const virtualInput = {
   dx: 0,
   dy: 0,
@@ -58,12 +45,12 @@ const state = {
     x: MAP_W * TILE * 0.5,
     y: MAP_H * TILE * 0.55,
     speed: 160,
-    dir: "down", // 'down' | 'up' | 'side'
+    dir: "down",
     flip: false,
     animTimer: 0,
-    animIndex: 0, // NEW: stable index used by draw
+    animIndex: 0,
     inWater: false,
-    zen: 70, // 0..100
+    zen: 70,
   },
   camera: { x: 0, y: 0 },
   interact: null,
@@ -78,7 +65,6 @@ const state = {
   emotes: [],
 };
 
-// Assets
 const images = {};
 const loadImage = (src) =>
   new Promise((res, rej) => {
@@ -101,12 +87,9 @@ async function loadAssets() {
   await Promise.all(loads);
 }
 
-// World generation (cozy nature)
 function makeWorld() {
-  // 0 grass, 1 path, 2 water
   const tiles = new Uint8Array(MAP_W * MAP_H).fill(0);
 
-  // meandering path
   let x = Math.floor(MAP_W * 0.2);
   for (let y = Math.floor(MAP_H*0.3); y < MAP_H*0.9; y++) {
     x += Math.round((Math.random()-0.5)*2);
@@ -114,7 +97,6 @@ function makeWorld() {
     for (let dx=-1; dx<=1; dx++) tiles[y*MAP_W + (x+dx)] = 1;
   }
 
-  // pond
   const cx = Math.floor(MAP_W*0.7), cy = Math.floor(MAP_H*0.45);
   const rx = 8, ry = 6;
   for (let j=cy-ry-1; j<=cy+ry+1; j++){
@@ -125,9 +107,7 @@ function makeWorld() {
     }
   }
 
-  // props
   const props = [];
-  // flowers clusters around path and grass
   for (let k=0; k<40; k++){
     const px = 6 + Math.floor(Math.random()*(MAP_W-12));
     const py = 6 + Math.floor(Math.random()*(MAP_H-12));
@@ -135,7 +115,6 @@ function makeWorld() {
       props.push({type:"flower", x:px*TILE+8, y:py*TILE+8, r:42, action: sniffFlower});
     }
   }
-  // berries near bushes
   for (let k=0; k<12; k++){
     const px = 6 + Math.floor(Math.random()*(MAP_W-12));
     const py = 6 + Math.floor(Math.random()*(MAP_H-12));
@@ -143,12 +122,9 @@ function makeWorld() {
       props.push({type:"berries", x:px*TILE+16, y:py*TILE+16, r:50, action: eatBerry, qty: 3});
     }
   }
-  // picnic blanket near pond
   props.push({type:"blanket", x:(cx-8)*TILE, y:(cy+ry+2)*TILE, r:90, action: napTime});
-  // cozy log somewhere
   props.push({type:"log", x:(cx-14)*TILE, y:(cy-ry-2)*TILE, r:70, action: sitAndBreathe});
 
-  // shiny trinkets scattered
   const trinkets = [];
   for (let k=0; k<6; k++){
     const px = 4 + Math.floor(Math.random()*(MAP_W-8));
@@ -161,7 +137,6 @@ function makeWorld() {
   return { tiles, props, trinkets };
 }
 
-// Interactions
 function sniffFlower(p) {
   addEmote("🌸");
   bumpZen(4);
@@ -192,7 +167,6 @@ function sitAndBreathe() {
   showToast("Gucci respire… tout va bien.", 1500);
 }
 
-// Player helpers
 function addEmote(txt) {
   state.emotes.push({t:0, txt, x: state.player.x, y: state.player.y-30});
 }
@@ -212,7 +186,6 @@ function addQuestProgress(id, n=1){
   renderQuests();
 }
 
-// Persist
 function saveProgress() {
   const data = {
     quests: state.quests.map(q=>({id:q.id,count:q.count,done:q.done})),
@@ -232,7 +205,6 @@ function loadProgress() {
   }catch(e){}
 }
 
-// Input
 window.addEventListener("keydown", e=>{
   if (["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"," ","Tab"].includes(e.key)) e.preventDefault();
   keys.add(e.key.toLowerCase());
@@ -248,9 +220,7 @@ document.querySelectorAll(".close").forEach(btn=>{
 });
 btnJournal.addEventListener("click", ()=>togglePanel(journalEl));
 
-/* Virtual joystick mechanics (touch) */
 function joySetVector(x, y){
-  // clamp to radius 48px
   const maxR = 48;
   const len = Math.hypot(x,y);
   const nx = len>0 ? x/Math.max(len,1e-6) : 0;
@@ -258,7 +228,6 @@ function joySetVector(x, y){
   const k = Math.min(1, len / maxR);
   virtualInput.dx = nx * k;
   virtualInput.dy = ny * k;
-  // move knob
   joyStickKnobEl.style.transform = `translate(${nx*maxR*0.9}px, ${ny*maxR*0.9}px)`;
 }
 function joyReset(){
@@ -289,7 +258,6 @@ joystickEl.addEventListener("touchend", (e)=>{
 });
 joystickEl.addEventListener("touchcancel", ()=> joyReset());
 
-/* NEW: Desktop mouse support for the virtual joystick */
 let mouseJoyActive = false;
 joystickEl.addEventListener("mousedown", (e)=>{
   if (controlsState.edit) return;
@@ -309,15 +277,12 @@ window.addEventListener("mouseup", ()=>{
   joyReset();
 });
 
-/* Mobile action buttons */
 mcInteractBtn.addEventListener("touchstart", (e)=>{ if (!controlsState.edit){ tryInteract(); e.preventDefault(); } }, {passive:false});
 mcJournalBtn.addEventListener("touchstart", (e)=>{ if (!controlsState.edit){ togglePanel(journalEl); e.preventDefault(); } }, {passive:false});
 
-/* NEW: Desktop click support for action buttons */
 mcInteractBtn.addEventListener("click", ()=>{ if (!controlsState.edit){ tryInteract(); } });
 mcJournalBtn.addEventListener("click", ()=>{ if (!controlsState.edit){ togglePanel(journalEl); } });
 
-/* Draggable controls (mouse + touch) when in edit mode */
 function makeDraggable(el, key){
   let dragging = false;
   let start = { x:0, y:0 };
@@ -329,7 +294,6 @@ function makeDraggable(el, key){
     start = { x: clientX, y: clientY };
     const rect = el.getBoundingClientRect();
     const rootRect = canvas.getBoundingClientRect();
-    // compute current offsets relative to rootRect
     orig = {
       left: rect.left - rootRect.left,
       right: rootRect.right - rect.right,
@@ -341,9 +305,7 @@ function makeDraggable(el, key){
     if (!dragging) return;
     const dx = clientX - start.x;
     const dy = clientY - start.y;
-    // choose anchoring based on which side originally had value in state
     const pos = controlsState.positions[key];
-    // clear styles
     ["left","right","top","bottom"].forEach(k=> el.style[k]="");
     if (pos.left!=null){ el.style.left = Math.max(0, orig.left + dx) + "px"; }
     if (pos.right!=null){ el.style.right = Math.max(0, orig.right - dx) + "px"; }
@@ -353,7 +315,6 @@ function makeDraggable(el, key){
   const onEnd = ()=>{
     if (!dragging) return;
     dragging = false;
-    // persist back into state (read computed styles)
     const style = getComputedStyle(el);
     const newPos = {};
     ["left","right","top","bottom"].forEach(k=>{
@@ -364,11 +325,9 @@ function makeDraggable(el, key){
     saveControlsState();
   };
 
-  // Mouse
   el.addEventListener("mousedown", (e)=>{ if (controlsState.edit){ e.preventDefault(); onStart(e.clientX, e.clientY);} });
   window.addEventListener("mousemove", (e)=> onMove(e.clientX, e.clientY));
   window.addEventListener("mouseup", onEnd);
-  // Touch
   el.addEventListener("touchstart", (e)=>{ if (!controlsState.edit) return; const t=e.changedTouches[0]; onStart(t.clientX, t.clientY); }, {passive:false});
   el.addEventListener("touchmove", (e)=>{ if (!controlsState.edit) return; const t=e.changedTouches[0]; onMove(t.clientX, t.clientY); e.preventDefault(); }, {passive:false});
   el.addEventListener("touchend", onEnd);
@@ -376,7 +335,6 @@ function makeDraggable(el, key){
 makeDraggable(joystickEl, "joystick");
 makeDraggable(buttonsEl, "buttons");
 
-/* Controls layout state (persisted) */
 const controlsState = {
   enabled: true,
   edit: false,
@@ -392,7 +350,6 @@ function loadControlsState(){
     const s = JSON.parse(localStorage.getItem("gucci-controls")||"null");
     if (s) {
       Object.assign(controlsState, s);
-      // defensive merge
       controlsState.positions.joystick ||= {left:16,bottom:16};
       controlsState.positions.buttons ||= {right:16,bottom:16};
     }
@@ -402,19 +359,14 @@ function saveControlsState(){
   localStorage.setItem("gucci-controls", JSON.stringify(controlsState));
 }
 function applyControlsState(){
-  // visibility
   mobileControlsEl.classList.toggle("hidden", !controlsState.enabled);
   mobileControlsEl.classList.toggle("edit", !!controlsState.edit);
-  // scale
   mobileControlsEl.style.setProperty("--mc-scale", String(controlsState.scale));
-  // positions
   const js = controlsState.positions.joystick;
   const bs = controlsState.positions.buttons;
-  // clear all sides then set provided
   ["left","right","top","bottom"].forEach(k=>{ joystickEl.style[k] = ""; buttonsEl.style[k] = ""; });
   Object.entries(js).forEach(([k,v])=> joystickEl.style[k] = v+"px");
   Object.entries(bs).forEach(([k,v])=> buttonsEl.style[k] = v+"px");
-  // sync controls panel
   chkMCEnable.checked = controlsState.enabled;
   chkMCEdit.checked = controlsState.edit;
   rangeMCSize.value = controlsState.scale;
@@ -428,7 +380,6 @@ function resetControlsState(){
   applyControlsState();
 }
 
-/* Settings + toggles */
 btnSettings.addEventListener("click", ()=> togglePanel(settingsEl));
 chkMCEnable.addEventListener("change", ()=>{
   controlsState.enabled = chkMCEnable.checked;
@@ -444,17 +395,14 @@ rangeMCSize.addEventListener("input", ()=>{
 });
 btnResetControls.addEventListener("click", resetControlsState);
 
-// Movement + interactions
 function update(dt){
   const p = state.player;
-  // collect input from keyboard
   let kdx = 0, kdy = 0;
   if (keys.has("arrowup")||keys.has("z")) kdy -= 1;
   if (keys.has("arrowdown")||keys.has("s")) kdy += 1;
   if (keys.has("arrowleft")||keys.has("q")) kdx -= 1;
   if (keys.has("arrowright")||keys.has("d")) kdx += 1;
 
-  // merge with virtual joystick
   let dx = kdx + virtualInput.dx;
   let dy = kdy + virtualInput.dy;
 
@@ -469,15 +417,12 @@ function update(dt){
   p.x += dx * sp * dt;
   p.y += dy * sp * dt;
 
-  // clamp to map (top-left anchored 64x64 sprite)
   p.x = Math.max(0, Math.min(MAP_W*TILE - 64, p.x));
   p.y = Math.max(0, Math.min(MAP_H*TILE - 64, p.y));
 
-  // animation + direction
   const moving = Math.abs(dx)>0.01 || Math.abs(dy)>0.01;
   p.moving = moving;
 
-  // Advance animation ONLY here (avoid double stepping)
   if (moving){
     p.animTimer += dt;
     const step = 0.12;
@@ -490,18 +435,14 @@ function update(dt){
     if (Math.abs(dx)>Math.abs(dy)) { p.dir = "side"; p.flip = dx<0; }
     else { p.dir = dy>0 ? "down" : "up"; }
   } else {
-    // idle: keep current direction, timer rests
   }
 
-  // gentle day-night tint oscillation
   const t = performance.now()/1000;
   const tint = 0.35 + 0.25*Math.sin(t*0.05);
   tintEl.style.opacity = String(tint);
 
-  // zen UI
   zenBar.style.width = `${p.zen}%`;
 
-  // find nearest interactable (use player center)
   const cx = p.x + 32, cy = p.y + 32;
   const candidates = [...state.world.props];
   state.interact = null;
@@ -520,7 +461,6 @@ function update(dt){
     hidePrompt();
   }
 
-  // trinkets pickup
   for (const tr of state.world.trinkets) {
     if (!tr.taken && Math.hypot(cx-(tr.x), cy-(tr.y))<36) {
       tr.taken = true;
@@ -530,7 +470,6 @@ function update(dt){
     }
   }
 
-  // camera follow (center on player)
   state.camera.x = Math.floor(p.x + 32 - W/2);
   state.camera.y = Math.floor(p.y + 32 - H/2);
   state.camera.x = Math.max(0, Math.min(MAP_W*TILE - W, state.camera.x));
@@ -556,23 +495,17 @@ function tryInteract(){
   it.action?.(it);
 }
 
-// Rendering tiles from tileset
-// tileset_nature.png spec (64x64 tiles):
-// - row 0: grass variants at indices 0..3
-// - row 1: path center at 0, path edge (some variants) 1..3
-// - row 2: water variants 0..3
 function drawTile(tileId, sx, sy){
   const ts = images.tiles;
   const s = TILE;
-  const row = tileId; // 0 grass, 1 path, 2 water
+  const row = tileId;
   let col = 0;
-  if (row===0) col = ((sx>>6)+(sy>>6))%4; // simple variant
+  if (row===0) col = ((sx>>6)+(sy>>6))%4;
   if (row===1) col = 0;
   if (row===2) col = ((sx>>6)+2*(sy>>6))%4;
   ctx.drawImage(ts, col*s, row*s, s, s, sx, sy, s, s);
 }
 
-// Props rendering and interaction radius
 function drawProp(p){
   const px = p.x - state.camera.x;
   const py = p.y - state.camera.y;
@@ -583,38 +516,27 @@ function drawProp(p){
   if (p.type==="log") img = images.log;
   if (!img) return;
   ctx.drawImage(img, px, py);
-  // optional debug radius
-  // ctx.strokeStyle="rgba(0,0,0,0.1)"; ctx.beginPath(); ctx.arc(px,py, p.r, 0, Math.PI*2); ctx.stroke();
 }
 
-// Player sprite sheet:
-// 3 rows: 0=down, 1=side, 2=up; 4 frames each; auto-detect frame size from image
 function drawPlayer(){
-  // Ensure nearest-neighbor and no filtering
   ctx.imageSmoothingEnabled = false;
 
   const img = images.mouse;
   if (!img || !img.width || !img.height) return;
 
-  // Auto-detect frame size to match the actual sprite sheet (fixes cropping issues)
   const cols = 4;
   const rows = 3;
   const frameW = Math.floor(img.width / cols);
   const frameH = Math.floor(img.height / rows);
 
-  // Force the "Z" (up) animation row for all movement and idle
-  const row = 2; // use facing up row for every state
+  const row = 2;
 
-  // Smooth walking sequence; idle uses a solid visible frame
   const WALK_FRAMES = [0, 1, 2, 1];
   const frame = state.player.moving ? WALK_FRAMES[state.player.animIndex % WALK_FRAMES.length] : 1;
 
-  // Base point: bottom-center of the sprite sits on the mouse "feet"
-  // Keep gameplay box at 64x64 around player; align feet around playerScreenY()+56 to avoid clipping
   const baseX = playerScreenX() + 32;
   const baseY = playerScreenY() + 56;
 
-  // Shadow (based on gameplay box, not sprite size)
   ctx.save();
   ctx.globalAlpha = 0.25;
   ctx.fillStyle = "#000";
@@ -623,7 +545,6 @@ function drawPlayer(){
   ctx.fill();
   ctx.restore();
 
-  // Draw sprite anchored at feet, accounting for flipping
   ctx.save();
   ctx.translate(baseX, baseY);
   if (state.player.dir==="side" && state.player.flip) {
@@ -631,13 +552,12 @@ function drawPlayer(){
   }
   ctx.drawImage(
     img,
-    frame * frameW, row * frameH, frameW, frameH,   // src
-    -Math.floor(frameW/2), -frameH, frameW, frameH  // dest anchored to feet
+    frame * frameW, row * frameH, frameW, frameH,
+    -Math.floor(frameW/2), -frameH, frameW, frameH
   );
   ctx.restore();
 }
 
-// Particles
 function spawnParticles(kind, x,y, n){
   for(let i=0;i<n;i++){
     state.particles.push({
@@ -678,7 +598,6 @@ function drawParticles(dt){
   }
 }
 
-// Emotes
 function drawEmotes(dt){
   for(let i=state.emotes.length-1;i>=0;i--){
     const e = state.emotes[i];
@@ -695,7 +614,6 @@ function drawEmotes(dt){
   }
 }
 
-// Toasts
 function showToast(text, time=1400) {
   const el = document.createElement("div");
   el.className = "toast";
@@ -704,7 +622,6 @@ function showToast(text, time=1400) {
   setTimeout(()=> el.remove(), time);
 }
 
-// Fade pause (nap)
 function fadePause(ms){
   return new Promise(res=>{
     const start = performance.now();
@@ -722,18 +639,14 @@ function fadePause(ms){
   });
 }
 
-// Draw routine
 function draw(){
-  // clear
   ctx.clearRect(0,0,W,H);
 
-  // visible tile rect
   const x0 = Math.floor(state.camera.x / TILE);
   const y0 = Math.floor(state.camera.y / TILE);
   const x1 = Math.ceil((state.camera.x + W) / TILE);
   const y1 = Math.ceil((state.camera.y + H) / TILE);
 
-  // background tiles
   for (let gy=y0; gy<y1; gy++){
     for (let gx=x0; gx<x1; gx++){
       const id = state.world.tiles[gy*MAP_W + gx];
@@ -741,27 +654,21 @@ function draw(){
     }
   }
 
-  // trinkets
   for (const tr of state.world.trinkets) {
     if (tr.taken) continue;
     const sx = tr.x - state.camera.x, sy = tr.y - state.camera.y;
-    // twinkle
     const tw = (Math.sin(performance.now()/300 + (tr.x+tr.y)) + 1)/2;
     const r = 3 + tw*2;
     ctx.fillStyle = `rgba(255,255,255,${0.7+0.3*tw})`;
     ctx.beginPath(); ctx.arc(sx, sy, r, 0, Math.PI*2); ctx.fill();
   }
 
-  // props
   for (const p of state.world.props) drawProp(p);
 
-  // player
   drawPlayer();
 
-  // particles
-  drawParticles(0); // alpha blending handled
+  drawParticles(0);
 
-  // emotes
   drawEmotes(0);
 }
 
@@ -773,7 +680,6 @@ function loop(t){
   requestAnimationFrame(loop);
 }
 
-// Quests UI
 function renderQuests(){
   questsEl.innerHTML = "";
   for (const q of state.quests) {
@@ -787,7 +693,6 @@ function renderQuests(){
   }
 }
 
-// ensure prompt E on mobile buttons also shows action text
 function togglePanel(el, onOpen){
   const willOpen = el.hidden;
   document.querySelectorAll(".panel").forEach(p=>p.hidden = true);
@@ -798,7 +703,6 @@ function togglePanel(el, onOpen){
 function playerScreenX(){ return state.player.x - state.camera.x; }
 function playerScreenY(){ return state.player.y - state.camera.y; }
 
-// Map helpers
 function tileAt(x,y){
   const gx = Math.floor(x / TILE);
   const gy = Math.floor(y / TILE);
@@ -808,7 +712,6 @@ function tileAt(x,y){
 function isWaterAt(x,y){ return tileAt(x,y)===2; }
 function isPathAt(x,y){ return tileAt(x,y)===1; }
 
-// Init
 let started = false;
 async function start(){
   if (started) return;
@@ -817,9 +720,7 @@ async function start(){
   state.world = makeWorld();
   loadProgress();
 
-  // Load + apply mobile controls setup
   loadControlsState();
-  // Default enable controls for all, but if user on desktop and prefers off, they can disable in settings.
   applyControlsState();
 
   renderQuests();
