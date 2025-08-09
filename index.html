@@ -1,0 +1,106 @@
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gucci la Souris — Balade Relax</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preload" href="gucci_mouse_sprites.png" as="image" />
+  <link rel="preload" href="tileset_nature.png" as="image" />
+  <link rel="preload" href="flower_patch.png" as="image" />
+  <link rel="preload" href="berry_bush.png" as="image" />
+  <link rel="preload" href="picnic_blanket.png" as="image" />
+  <link rel="preload" href="cozy_log.png" as="image" />
+</head>
+<body>
+  <div id="game-root">
+    <canvas id="game" width="960" height="540"></canvas>
+
+    <!-- Soft vignette and tint for day-night -->
+    <div id="tint"></div>
+
+    <!-- Minimal HUD -->
+    <div id="hud">
+      <div class="hud-left">
+        <div class="badge">
+          <img src="gucci_mouse_sprites.png" alt="Gucci" class="mini-gucci" />
+          <span>Gucci</span>
+        </div>
+        <div class="stat">
+          <span>Zen</span>
+          <div class="bar"><div id="zen-bar"></div></div>
+        </div>
+      </div>
+      <div class="hud-right">
+        <button id="btn-journal" class="ui">Journal (J)</button>
+        <button id="btn-settings" class="ui" title="Paramètres">⚙️</button>
+      </div>
+    </div>
+
+    <!-- Interaction prompt -->
+    <div id="prompt" hidden>
+      <span id="prompt-text"></span>
+      <span class="key">E</span>
+    </div>
+
+    <!-- Journal -->
+    <div id="journal" class="panel" hidden>
+      <div class="panel-header">
+        <h2>Journal de Gucci</h2>
+        <button class="close" data-close="#journal">✕</button>
+      </div>
+      <div class="panel-body">
+        <p>Objectifs doux et relaxants. Aucun chrono, aucune pression.</p>
+        <ul id="quests"></ul>
+        <div class="tip">Conseil: balade-toi avec ZQSD ou les flèches. Appuie sur E pour interagir.</div>
+      </div>
+    </div>
+
+    <!-- Settings Panel -->
+    <div id="settings" class="panel" hidden>
+      <div class="panel-header">
+        <h2>Paramètres</h2>
+        <button class="close" data-close="#settings">✕</button>
+      </div>
+      <div class="panel-body">
+        <div class="setting-row">
+          <label class="switch">
+            <input type="checkbox" id="toggle-mobile-controls" checked />
+            <span>Activer les contrôles tactiles</span>
+          </label>
+        </div>
+        <div class="setting-row">
+          <label class="switch">
+            <input type="checkbox" id="toggle-edit-controls" />
+            <span>Mode édition (déplacer/redimensionner)</span>
+          </label>
+        </div>
+        <div class="setting-row">
+          <label for="controls-size">Taille des contrôles</label>
+          <input type="range" id="controls-size" min="0.6" max="1.6" step="0.05" value="1" />
+        </div>
+        <div class="setting-row">
+          <button id="btn-reset-controls" class="ui secondary">Réinitialiser la position</button>
+          <span class="tip">Astuce: glisse les contrôles quand le mode édition est activé.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Controls -->
+    <div id="mobile-controls">
+      <div id="mc-joystick" class="draggable" data-drag="joystick" aria-label="Joystick">
+        <div class="mc-joy-base"></div>
+        <div class="mc-joy-stick"></div>
+      </div>
+      <div id="mc-buttons" class="draggable" data-drag="buttons" aria-label="Boutons">
+        <button id="mc-btn-interact" class="mc-btn" title="Interagir (E)">🅔</button>
+        <button id="mc-btn-journal" class="mc-btn" title="Journal (J)">📒</button>
+      </div>
+    </div>
+
+    <!-- Toasts -->
+    <div id="toasts"></div>
+  </div>
+
+  <script type="module" src="script.js"></script>
+</body>
+</html>
